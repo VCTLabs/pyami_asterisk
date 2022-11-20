@@ -1,4 +1,3 @@
 Response: Success
 ActionID: action/transaction_uid/1/1
 Message: Authentication accepted
-
