@@ -1,11 +1,12 @@
+from typing import Dict, List
 import uuid
 
 EOL = b"\r\n"
 
 
-def _convert_bytes_to_dict(data: bytes) -> dict:
-    respons = {}
-    list_values = []
+def _convert_bytes_to_dict(data: bytes) -> Dict:
+    respons: Dict = {}
+    list_values: List = []
     for _ in data.decode("utf-8", errors='ignore').split(EOL.decode()):
         if _ != "":
             if _.split(": ", 1)[0] in respons:
@@ -16,7 +17,7 @@ def _convert_bytes_to_dict(data: bytes) -> dict:
     return respons
 
 
-def _convert_dict_to_bytes(data: dict) -> bytes:
+def _convert_dict_to_bytes(data: Dict) -> bytes:
     string = ""
     for _, __ in data.items():
         if isinstance(__, list):
@@ -31,7 +32,7 @@ def _convert_dict_to_bytes(data: dict) -> bytes:
 class IdGenerator:
     """Generate some uuid for actions:"""
 
-    instances = []
+    instances: List = []
 
     def __init__(self, prefix):
         self.instances.append(self)

@@ -1,5 +1,8 @@
 import asyncio
+from typing import Dict, List
+
 from loguru import logger as log
+
 from .utils import _convert_dict_to_bytes, EOL, IdGenerator, _convert_bytes_to_dict
 
 
@@ -103,7 +106,7 @@ class AMIClient:
         self.log.error("Authentication failed")
         return False
 
-    async def _actions_task_repeat(self, action: dict):
+    async def _actions_task_repeat(self, action):
         generator = IdGenerator('action')
         while self._connected:
             action.get('action')['ActionID'] = generator()
@@ -183,7 +186,7 @@ class AMIClient:
         self._data.task_done()
         await self._handler_tasks(action_in_callback=True)
 
-    async def _send_action(self, action: dict, callback: object = None):
+    async def _send_action(self, action: Dict, callback: object = None):
         if "ActionID" not in action:
             action_id_generator = IdGenerator('action')
             action['ActionID'] = action_id_generator()
@@ -218,14 +221,14 @@ class AMIClient:
             await asyncio.sleep(self.reconnect_timeout)
             await self._connection_lost()
 
-    def register_event(self, patterns: list, callbacks: object):
+    def register_event(self, patterns: List, callbacks: object):
         for pattern in patterns:
             self._patterns.append({pattern: callbacks})
 
-    def create_action(self, action: dict, callback: object, repeat: int = False):
+    def create_action(self, action: Dict, callback: object, repeat: float = False):
         self._actions.append({'action': action, 'callback': callback, 'repeat': repeat})
 
-    def create_asyncio_task(self, tasks: list):
+    def create_asyncio_task(self, tasks: List):
         for task in tasks:
             self._asyncio_tasks.append(task)
 
