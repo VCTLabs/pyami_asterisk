@@ -88,7 +88,10 @@ async def handle_echo(reader, writer, stream=None):
     message = _convert_bytes_to_dict(data)
     if message['Action'] == 'Login':
         response = "Asterisk Call Manager/5.0.1\r\n".encode()
-        if (message["Username"] == "valid_username" and message["Secret"] == "valid_password"):
+        if (
+            message["Username"] == "valid_username"
+            and message["Secret"] == "valid_password"
+        ):
             with open("tests/fixtures/login_ok.txt", "rb") as login_file:
                 response += login_file.read()
         else:
@@ -105,7 +108,9 @@ async def _server(stream=None, **config):
     SECRET = 'password'
     defaults = dict(host=HOST, port=PORT, username=USENAME, secret=SECRET, ping_delay=0)
     config = dict(defaults, **config)
-    server = await asyncio.start_server(lambda r, w: handle_echo(r, w, stream), HOST, PORT)
+    server = await asyncio.start_server(
+        lambda r, w: handle_echo(r, w, stream), HOST, PORT
+    )
     asyncio.create_task(server.serve_forever())
     ami = AMIClient(**config)
     yield ami

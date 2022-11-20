@@ -1,5 +1,5 @@
-from typing import Dict, List
 import uuid
+from typing import Dict, List
 
 EOL = b"\r\n"
 
@@ -44,11 +44,20 @@ class IdGenerator:
         i = 0
         max_val = 10000
         while True:
-            yield "%s/%s/%d/%d" % (self.prefix, self.uid, (i // max_val) + 1, (i % max_val) + 1)
+            yield "%s/%s/%d/%d" % (
+                self.prefix,
+                self.uid,
+                (i // max_val) + 1,
+                (i % max_val) + 1,
+            )
             i += 1
 
     def __call__(self):
         return next(self.generator)
 
     def __repr__(self):
-        return "<%s prefix:%s (uid:%s)>" % (self.__class__.__name__, self.prefix, self.uid)
+        return "<%s prefix:%s (uid:%s)>" % (
+            self.__class__.__name__,
+            self.prefix,
+            self.uid,
+        )

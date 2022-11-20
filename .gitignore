@@ -132,6 +132,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+pyami_asterisk/_version.py
 .Python
 build/
 develop-eggs/
