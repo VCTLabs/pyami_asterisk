@@ -7,11 +7,11 @@ Response: Success
 ActionID: action/90ddf231-d87a-4f00-a45a-9ab4912b5ed1/1/1
 AMIversion: 5.0.2
 AsteriskVersion: 16.13.0
-SystemName:
+SystemName: 
 CoreMaxCalls: 0
 CoreMaxLoadAvg: 0.000000
-CoreRunUser:
-CoreRunGroup:
+CoreRunUser: 
+CoreRunGroup: 
 CoreMaxFilehandles: 0
 CoreRealTimeEnabled: No
 CoreCDRenabled: Yes
@@ -25,3 +25,4 @@ Context: from-internal
 Hint: PJSIP/203,CustomPresence:203
 Status: 0
 StatusText: Idle
+

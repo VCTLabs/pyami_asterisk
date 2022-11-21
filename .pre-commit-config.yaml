@@ -2,7 +2,7 @@
 #   pre-commit install
 # To update the pre-commit hooks run:
 #   pre-commit install-hooks
-#exclude: '^(.tox/)$'
+exclude: ^(tests/fixtures/.*\.txt$)
 repos:
   - repo: meta
     hooks:
