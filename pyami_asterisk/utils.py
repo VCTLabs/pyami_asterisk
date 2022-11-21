@@ -1,14 +1,15 @@
 import uuid
+from typing import Dict, List
 
 EOL = b"\r\n"
 
 
-def _convert_bytes_to_dict(data: bytes) -> dict:
-    respons = dict()
-    list_values = list()
+def _convert_bytes_to_dict(data: bytes) -> Dict:
+    respons: Dict = {}
+    list_values: List = []
     for _ in data.decode("utf-8", errors='ignore').split(EOL.decode()):
         if _ != "":
-            if _.split(": ", 1)[0] in respons.keys():
+            if _.split(": ", 1)[0] in respons:
                 list_values.append(_.split(": ", 1)[1])
                 respons[_.split(": ", 1)[0]] = list_values
                 continue
@@ -16,7 +17,7 @@ def _convert_bytes_to_dict(data: bytes) -> dict:
     return respons
 
 
-def _convert_dict_to_bytes(data: dict) -> bytes:
+def _convert_dict_to_bytes(data: Dict) -> bytes:
     string = ""
     for _, __ in data.items():
         if isinstance(__, list):
@@ -31,7 +32,7 @@ def _convert_dict_to_bytes(data: dict) -> bytes:
 class IdGenerator:
     """Generate some uuid for actions:"""
 
-    instances = []
+    instances: List = []
 
     def __init__(self, prefix):
         self.instances.append(self)
@@ -43,11 +44,20 @@ class IdGenerator:
         i = 0
         max_val = 10000
         while True:
-            yield "%s/%s/%d/%d" % (self.prefix, self.uid, (i // max_val) + 1, (i % max_val) + 1)
+            yield "%s/%s/%d/%d" % (
+                self.prefix,
+                self.uid,
+                (i // max_val) + 1,
+                (i % max_val) + 1,
+            )
             i += 1
 
     def __call__(self):
         return next(self.generator)
 
     def __repr__(self):
-        return "<%s prefix:%s (uid:%s)>" % (self.__class__.__name__, self.prefix, self.uid)
+        return "<%s prefix:%s (uid:%s)>" % (
+            self.__class__.__name__,
+            self.prefix,
+            self.uid,
+        )
