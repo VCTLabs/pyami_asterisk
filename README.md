@@ -1,7 +1,13 @@
 AsyncIO python library with Asterisk AMI
 ========================================
 
-[![Build Status](https://travis-ci.com/streltsovdenis/pyami_asterisk.svg?branch=main)](https://travis-ci.com/streltsovdenis/pyami_asterisk)
+[![CI](https://github.com/VCTLabs/pyami_asterisk/actions/workflows/ci.yml/badge.svg)](https://github.com/VCTLabs/pyami_asterisk/actions/workflows/ci.yml)
+[![Docs](https://github.com/VCTLabs/pyami_asterisk/actions/workflows/sphinx.yml/badge.svg)](https://github.com/VCTLabs/pyami_asterisk/actions/workflows/sphinx.yml)
+[![Security check - Bandit](https://github.com/VCTLabs/pyami_asterisk/actions/workflows/bandit.yml/badge.svg)](https://github.com/VCTLabs/pyami_asterisk/actions/workflows/bandit.yml)
+[![Release](https://github.com/VCTLabs/pyami_asterisk/actions/workflows/release.yml/badge.svg)](https://github.com/VCTLabs/pyami_asterisk/actions/workflows/release.yml)
+
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&amp;logoColor=white)](https://github.com/pre-commit/pre-commit)
+
 ![PyPI](https://img.shields.io/pypi/v/pyami_asterisk)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/pyami_asterisk?color=green)
 ![PyPI - License](https://img.shields.io/pypi/l/pyami-asterisk?color=green)
