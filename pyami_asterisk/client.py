@@ -111,8 +111,7 @@ class AMIClient:
         data = await self._reader.readuntil(separator=EOL * 2)
         if (
             data.decode().split(EOL.decode())[1] == "Response: Success"
-            and data.decode().split(EOL.decode())[-3]
-            == "Message: Authentication accepted"
+            and data.decode().split(EOL.decode())[-3] == "Message: Authentication accepted"
         ):
             self.ami_version = data.decode().split(EOL.decode())[0]
             if self.config.get('ami_version'):
@@ -135,10 +134,7 @@ class AMIClient:
                 try:
                     data = await self._reader.readuntil(separator=EOL * 2)
                 except asyncio.LimitOverrunError as e:
-                    data = (
-                        await self._reader.read(e.consumed)
-                        + await self._reader.readline()
-                    )
+                    data = await self._reader.read(e.consumed) + await self._reader.readline()
                 if data == "".encode():
                     continue
                 if "Event: Shutdown".encode() in data:
@@ -150,40 +146,29 @@ class AMIClient:
                 if "ActionID".encode() in data:
                     response = _convert_bytes_to_dict(data)
                     if response['ActionID'] in self._actions_ids:
-                        if (
-                            self._actions_ids.get(response['ActionID']).get('callback')
-                            is not None
-                        ):
+                        if self._actions_ids.get(response['ActionID']).get('callback') is not None:
                             self._actions_queue.put_nowait(
                                 (self._actions_ids.get(response['ActionID']), response)
                             )
                             asyncio.create_task(self._actions_callbacks())
                             if (
-                                response.get('Message', '').endswith(
-                                    'successfully queued'
+                                response.get('Message', '').endswith('successfully queued')
+                                and self._actions_ids.get(response['ActionID'])['action'].get(
+                                    'Async', "false"
                                 )
-                                and self._actions_ids.get(response['ActionID'])[
-                                    'action'
-                                ].get('Async', "false")
                                 == 'true'
                                 or response.get('EventList', '') == 'start'
                             ):
-                                self._actions_ids.get(response['ActionID'])[
-                                    'wait_next'
-                                ] = True
+                                self._actions_ids.get(response['ActionID'])['wait_next'] = True
                             elif response.get('Response') in (
                                 'Success',
                                 'Error',
                                 'Fail',
                                 'Failure',
                             ):
-                                self._actions_ids.get(response['ActionID'])[
-                                    'wait_next'
-                                ] = False
+                                self._actions_ids.get(response['ActionID'])['wait_next'] = False
                             elif response.get('Event').endswith('Complete'):
-                                self._actions_ids.get(response['ActionID'])[
-                                    'wait_next'
-                                ] = False
+                                self._actions_ids.get(response['ActionID'])['wait_next'] = False
                         if not self._actions_ids.get(response['ActionID'])['wait_next']:
                             self._actions_ids.pop(response['ActionID'])
                         continue
@@ -224,9 +209,7 @@ class AMIClient:
                     await pattern.get("*")(data)
                 else:
                     pattern.get("*")(data)
-            if "*" != list(pattern.keys())[0] and list(pattern.keys())[0] == data.get(
-                'Event'
-            ):
+            if "*" != list(pattern.keys())[0] and list(pattern.keys())[0] == data.get('Event'):
                 if asyncio.iscoroutinefunction(list(pattern.values())[0]):
                     await list(pattern.values())[0](data)
                 else:

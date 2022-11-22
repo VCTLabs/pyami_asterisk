@@ -44,7 +44,7 @@ exclude_lines = [
 ]
 
 [tool.black]
-line-length = 90
+line-length = 99
 skip-string-normalization = true
 include = '\.py$'
 exclude = '''
@@ -67,7 +67,7 @@ exclude = '''
 all = true
 
 [tool.isort]
-line_length = 72
+line_length = 79
 multi_line_output = 3
 include_trailing_comma = true
 force_grid_wrap = 0

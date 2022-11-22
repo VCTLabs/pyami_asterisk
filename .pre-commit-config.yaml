@@ -107,14 +107,3 @@ repos:
       - id: bandit
         args: ["-ll", "-q", "-r"]
         files: pyami_asterisk/
-
-# excluding edm1 means no more shell scripts
-#  - repo: https://github.com/lovesegfault/beautysh
-#    rev: v6.2.1
-#    hooks:
-#      - id: beautysh
-#        args:
-#          - --force-function-style
-#          - 'paronly'
-#          - --indent-size
-#          - '2'
