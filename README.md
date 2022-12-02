@@ -1,7 +1,13 @@
 AsyncIO python library with Asterisk AMI
 ========================================
 
-[![Build Status](https://travis-ci.com/streltsovdenis/pyami_asterisk.svg?branch=main)](https://travis-ci.com/streltsovdenis/pyami_asterisk)
+[![CI](https://github.com/VCTLabs/pyami_asterisk/actions/workflows/ci.yml/badge.svg)](https://github.com/VCTLabs/pyami_asterisk/actions/workflows/ci.yml)
+[![Docs](https://github.com/VCTLabs/pyami_asterisk/actions/workflows/sphinx.yml/badge.svg)](https://github.com/VCTLabs/pyami_asterisk/actions/workflows/sphinx.yml)
+[![Security check - Bandit](https://github.com/VCTLabs/pyami_asterisk/actions/workflows/bandit.yml/badge.svg)](https://github.com/VCTLabs/pyami_asterisk/actions/workflows/bandit.yml)
+[![Release](https://github.com/VCTLabs/pyami_asterisk/actions/workflows/release.yml/badge.svg)](https://github.com/VCTLabs/pyami_asterisk/actions/workflows/release.yml)
+
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&amp;logoColor=white)](https://github.com/pre-commit/pre-commit)
+
 ![PyPI](https://img.shields.io/pypi/v/pyami_asterisk)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/pyami_asterisk?color=green)
 ![PyPI - License](https://img.shields.io/pypi/l/pyami-asterisk?color=green)
@@ -37,7 +43,12 @@ async def hangup_call(events):
     print(events)
 
 
-ami = AMIClient(host='127.0.0.1', port=5038, username='username', secret='password')
+ami = AMIClient(
+    host="127.0.0.1",
+    port=5038,
+    username="username",
+    secret="password",
+)
 ami.register_event(["*"], all_events)
 ami.register_event(["Hangup"], hangup_call)
 ami.connect()
@@ -55,16 +66,16 @@ def register_multiple_events(events):
 
 async def callback_peer_status(events):
     """
-        Response event:
-        {
-            'Event': 'PeerStatus', 
-            'Privilege': 'system,all',
-            'ChannelType': 'PJSIP', 
-            'Peer': 'PJSIP/888', 
-            'PeerStatus': 'Unreachable',
-        }
+    Response event:
+    {
+        'Event': 'PeerStatus',
+        'Privilege': 'system,all',
+        'ChannelType': 'PJSIP',
+        'Peer': 'PJSIP/888',
+        'PeerStatus': 'Unreachable',
+    }
     """
-    if events.get('PeerStatus') == 'Unreachable':
+    if events.get("PeerStatus") == "Unreachable":
         await asyncio.sleep(2)
         print(events)
 
@@ -76,8 +87,16 @@ async def callback_peer_status(events):
     ami.create_action({"Action": "Ping"}, ping)
 
 
-ami = AMIClient(host='127.0.0.1', port=5038, username='username', secret='password')
-ami.register_event(patterns=["Registry", "ContactStatus"], callbacks=register_multiple_events)
+ami = AMIClient(
+    host="127.0.0.1",
+    port=5038,
+    username="username",
+    secret="password",
+)
+ami.register_event(
+    patterns=["Registry", "ContactStatus"],
+    callbacks=register_multiple_events,
+)
 ami.register_event(["PeerStatus"], callback_peer_status)
 ami.connect()
 ```
@@ -99,7 +118,12 @@ async def core_status(events):
     print(events)
 
 
-ami = AMIClient(host='127.0.0.1', port=5038, username='username', secret='password')
+ami = AMIClient(
+    host="127.0.0.1",
+    port=5038,
+    username="username",
+    secret="password",
+)
 ami.create_action({"Action": "CoreSettings"}, core_settings)
 ami.create_action({"Action": "CoreStatus"}, core_status)
 ami.connect()
@@ -117,12 +141,19 @@ def core_settings(events):
 
 def core_status(events):
     print(events)
-    print(events['CoreCurrentCalls'])
+    print(events["CoreCurrentCalls"])
 
 
-ami = AMIClient(host='127.0.0.1', port=5038, username='username', secret='password')
+ami = AMIClient(
+    host="127.0.0.1",
+    port=5038,
+    username="username",
+    secret="password",
+)
 ami.create_action({"Action": "CoreSettings"}, core_settings)
-ami.create_action({"Action": "CoreStatus"}, core_status, repeat=3)
+ami.create_action(
+    {"Action": "CoreStatus"}, core_status, repeat=3
+)
 ami.connect()
 ```
 
@@ -136,7 +167,12 @@ def callback_originate(events):
     print(events)
 
 
-ami = AMIClient(host='127.0.0.1', port=5038, username='username', secret='password')
+ami = AMIClient(
+    host="127.0.0.1",
+    port=5038,
+    username="username",
+    secret="password",
+)
 ami.create_action(
     {
         "Action": "Originate",
@@ -146,7 +182,8 @@ ami.create_action(
         "Exten": "+37529XXXXXXX",
         "Context": "from-internal",
         "Async": "true",
-        "Variable": r"PJSIP_HEADER(add,Call-Info)=\;Answer-After=0",  # or multiple Variable ['var=1', 'var=2']
+        "Variable": r"PJSIP_HEADER(add,Call-Info)=\;Answer-After=0",
+        # or multiple Variable ['var=1', 'var=2']
         "Priority": "1",
     },
     callback_originate,
@@ -161,7 +198,6 @@ from pyami_asterisk import AMIClient
 
 
 def callback_peer_status(events):
-    
     def callback_ping(response_ping):
         print("Response Ping", response_ping)
 
@@ -169,7 +205,12 @@ def callback_peer_status(events):
     ami.create_action({"Action": "Ping"}, callback_ping)
 
 
-ami = AMIClient(host='127.0.0.1', port=5038, username='username', secret='password')
+ami = AMIClient(
+    host="127.0.0.1",
+    port=5038,
+    username="username",
+    secret="password",
+)
 ami.register_event(["PeerStatus"], callback_peer_status)
 ami.connect()
 ```
@@ -187,10 +228,14 @@ async def refresh_tokens(timeout=4):
     while True:
         print(random.randrange(0, 1000))
         await asyncio.sleep(timeout)
-    
 
 
-ami = AMIClient(host='127.0.0.1', port=5038, username='username', secret='password')
+ami = AMIClient(
+    host="127.0.0.1",
+    port=5038,
+    username="username",
+    secret="password",
+)
 ami.create_asyncio_task(tasks=[refresh_tokens(timeout=2)])
 ami.connect()
 ```
@@ -204,7 +249,7 @@ from pyami_asterisk import AMIClient
 
 async def all_events(event):
     print(event)
-    if event.get('Event') == 'SuccessfulAuth':
+    if event.get("Event") == "SuccessfulAuth":
         # connection close
         await ami.connection_close()
 
@@ -213,7 +258,13 @@ async def run_async():
     await asyncio.sleep(2)
     await ami.connect_ami()
 
-ami = AMIClient(host='127.0.0.1', port=5038, username='username', secret='password')
+
+ami = AMIClient(
+    host="127.0.0.1",
+    port=5038,
+    username="username",
+    secret="password",
+)
 ami.register_event(["*"], all_events)
 asyncio.run(run_async())
 ```

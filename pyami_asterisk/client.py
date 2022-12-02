@@ -1,15 +1,25 @@
 import asyncio
+from typing import Dict, List
+
 from loguru import logger as log
-from .utils import _convert_dict_to_bytes, EOL, IdGenerator, _convert_bytes_to_dict
+
+from .utils import (
+    EOL,
+    IdGenerator,
+    _convert_bytes_to_dict,
+    _convert_dict_to_bytes,
+)
 
 
 class AMIClient:
-    defaults = dict(host="127.0.0.1",
-                    port=5038,
-                    ping_delay=5,
-                    reconnect_timeout=5,
-                    reconnect_timeout_increase=0,
-                    ami_version=False)
+    defaults = dict(
+        host="127.0.0.1",
+        port=5038,
+        ping_delay=5,
+        reconnect_timeout=5,
+        reconnect_timeout_increase=0,
+        ami_version=False,
+    )
 
     def __init__(self, **config):
         """
@@ -50,8 +60,12 @@ class AMIClient:
         except (asyncio.TimeoutError, ConnectionRefusedError):
             if self.reconnect_timeout == 0:
                 return False
-            self.log.warning(f"Connection failed ({self.config['host']}, {self.config['port']}), next connection "
-                             f"attempt in {self.reconnect_timeout} second(s)")
+            self.log.warning(
+                "Connection failed (%s, %s), next connection attempt in %d second(s)",
+                self.config['host'],
+                self.config['port'],
+                self.reconnect_timeout,
+            )
             await asyncio.sleep(self.reconnect_timeout)
             if self.reconnect_timeout_increase > 0:
                 self.reconnect_timeout += self.reconnect_timeout_increase
@@ -87,14 +101,18 @@ class AMIClient:
             self._asyncio_tasks.clear()
 
     async def _login(self):
-        await self._send_action({
-            "Action": "Login",
-            "Username": self.config["username"],
-            "Secret": self.config["secret"],
-        })
+        await self._send_action(
+            {
+                "Action": "Login",
+                "Username": self.config["username"],
+                "Secret": self.config["secret"],
+            }
+        )
         data = await self._reader.readuntil(separator=EOL * 2)
-        if data.decode().split(EOL.decode())[1] == "Response: Success" and \
-                data.decode().split(EOL.decode())[-3] == "Message: Authentication accepted":
+        if (
+            data.decode().split(EOL.decode())[1] == "Response: Success"
+            and data.decode().split(EOL.decode())[-3] == "Message: Authentication accepted"
+        ):
             self.ami_version = data.decode().split(EOL.decode())[0]
             if self.config.get('ami_version'):
                 self.config.get('ami_version')(dict(AMI_version=self.ami_version))
@@ -103,7 +121,7 @@ class AMIClient:
         self.log.error("Authentication failed")
         return False
 
-    async def _actions_task_repeat(self, action: dict):
+    async def _actions_task_repeat(self, action):
         generator = IdGenerator('action')
         while self._connected:
             action.get('action')['ActionID'] = generator()
@@ -129,16 +147,27 @@ class AMIClient:
                     response = _convert_bytes_to_dict(data)
                     if response['ActionID'] in self._actions_ids:
                         if self._actions_ids.get(response['ActionID']).get('callback') is not None:
-                            self._actions_queue.put_nowait((self._actions_ids.get(response['ActionID']), response))
+                            self._actions_queue.put_nowait(
+                                (self._actions_ids.get(response['ActionID']), response)
+                            )
                             asyncio.create_task(self._actions_callbacks())
-                            if response.get('Message', '').endswith('successfully queued') \
-                                    and self._actions_ids.get(response['ActionID'])[
-                                        'action'].get('Async', "false") == 'true' \
-                                    or response.get('EventList', '') == 'start':
+                            if (
+                                response.get('Message', '').endswith('successfully queued')
+                                and self._actions_ids.get(response['ActionID'])['action'].get(
+                                    'Async', "false"
+                                )
+                                == 'true'
+                                or response.get('EventList', '') == 'start'
+                            ):
                                 self._actions_ids.get(response['ActionID'])['wait_next'] = True
-                            elif response.get('Response') in ('Success', 'Error', 'Fail', 'Failure'):
+                            elif response.get('Response') in (
+                                'Success',
+                                'Error',
+                                'Fail',
+                                'Failure',
+                            ):
                                 self._actions_ids.get(response['ActionID'])['wait_next'] = False
-                            elif response.get('Event', '').endswith('Complete'):
+                            elif response.get('Event').endswith('Complete'):
                                 self._actions_ids.get(response['ActionID'])['wait_next'] = False
                         if not self._actions_ids.get(response['ActionID'])['wait_next']:
                             self._actions_ids.pop(response['ActionID'])
@@ -148,7 +177,12 @@ class AMIClient:
                     self._data.put_nowait(_convert_bytes_to_dict(data))
                     asyncio.create_task(self._events_callbacks())
 
-            except (asyncio.IncompleteReadError, asyncio.TimeoutError, RuntimeError, ConnectionResetError):
+            except (
+                asyncio.IncompleteReadError,
+                asyncio.TimeoutError,
+                RuntimeError,
+                ConnectionResetError,
+            ):
                 if self._connected:
                     await self._connection_lost()
 
@@ -183,11 +217,15 @@ class AMIClient:
         self._data.task_done()
         await self._handler_tasks(action_in_callback=True)
 
-    async def _send_action(self, action: dict, callback: object = None):
+    async def _send_action(self, action: Dict, callback: object = None):
         if "ActionID" not in action:
             action_id_generator = IdGenerator('action')
             action['ActionID'] = action_id_generator()
-        self._actions_ids[action['ActionID']] = {'action': action, 'callback': callback, 'wait_next': False}
+        self._actions_ids[action['ActionID']] = {
+            'action': action,
+            'callback': callback,
+            'wait_next': False,
+        }
         self._writer.write(_convert_dict_to_bytes(action))
         try:
             await self._writer.drain()
@@ -203,7 +241,11 @@ class AMIClient:
 
     def _service_ping(self):
         if self.ping_delay > 0:
-            asyncio.create_task(self._actions_task_repeat({'action': {"Action": "Ping"}, 'repeat': self.ping_delay}))
+            asyncio.create_task(
+                self._actions_task_repeat(
+                    {'action': {"Action": "Ping"}, 'repeat': self.ping_delay}
+                )
+            )
 
     async def _connection_lost(self):
         self._connected = False
@@ -218,14 +260,14 @@ class AMIClient:
             await asyncio.sleep(self.reconnect_timeout)
             await self._connection_lost()
 
-    def register_event(self, patterns: list, callbacks: object):
+    def register_event(self, patterns: List, callbacks: object):
         for pattern in patterns:
             self._patterns.append({pattern: callbacks})
 
-    def create_action(self, action: dict, callback: object, repeat: int = False):
+    def create_action(self, action: Dict, callback: object, repeat: float = False):
         self._actions.append({'action': action, 'callback': callback, 'repeat': repeat})
 
-    def create_asyncio_task(self, tasks: list):
+    def create_asyncio_task(self, tasks: List):
         for task in tasks:
             self._asyncio_tasks.append(task)
 
